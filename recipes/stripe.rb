@@ -79,7 +79,7 @@ sanitized_nickname = device_nickname.downcase.gsub(/[^-a-z0-9]/, '-')
 #   - initialize the physical volumes for use by LVM
 #   - create volume group and logical volume
 #   - format and mount the logical volume
-lvm_volume_group "#{sanitized_nickname}-vg" do
+lvm_volume_group "vg-ebs-rightscale" do
   physical_volumes(lazy do
     if node['rs-storage']['restore']['lineage'].to_s.empty?
       device_nicknames.map { |device_nickname| node['rightscale_volume'][device_nickname]['device'] }
@@ -90,7 +90,7 @@ lvm_volume_group "#{sanitized_nickname}-vg" do
 end
 
 lvm_logical_volume "#{sanitized_nickname}-lv" do
-  group "#{sanitized_nickname}-vg"
+  group "vg-ebs-rightscale"
   size '100%VG'
   filesystem node['rs-storage']['device']['filesystem']
   mount_point node['rs-storage']['device']['mount_point']
