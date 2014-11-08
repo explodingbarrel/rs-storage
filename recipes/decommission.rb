@@ -39,9 +39,20 @@ else
     # Remove any characters other than alphanumeric and dashes and replace with dashes
     sanitized_nickname = device_nickname.downcase.gsub(/[^-a-z0-9]/, '-')
 
+    group_name = "#{sanitized_nickname}-vg";
+    volume_name= "#{sanitized_nickname}-lv";
+
+    if !node['rs-storage']['restore']['group'].to_s.empty?
+    	group_name = node['rs-storage']['restore']['group'].to_s
+    end
+
+    if !node['rs-storage']['restore']['volume'].to_s.empty?
+    	volume_name = node['rs-storage']['restore']['volume'].to_s
+    end
+
     # Construct the logical volume from the name of the volume group and the name of the logical volume similar to how the
     # lvm cookbook constructs the name during the creation of the logical volume
-    logical_volume_device = "/dev/mapper/#{to_dm_name("#{sanitized_nickname}-vg")}-#{to_dm_name("#{sanitized_nickname}-lv")}"
+    logical_volume_device = "/dev/mapper/#{to_dm_name("#{group_name}")}-#{to_dm_name("#{volume_name}")}"
 
     log "Unmounting #{node['rs-storage']['device']['mount_point']}"
     # There might still be some open files from the mount. Just ignore failure for now.
@@ -55,7 +66,7 @@ else
     # Clean up the LVM conditionally
     ruby_block 'clean up LVM' do
       block do
-        remove_lvm("#{sanitized_nickname}-vg")
+        remove_lvm("#{group_name}")
       end
     end
 
