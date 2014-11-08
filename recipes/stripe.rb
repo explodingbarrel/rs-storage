@@ -89,7 +89,7 @@ lvm_volume_group "vg-ebs-rightscale" do
   end)
 end
 
-lvm_logical_volume "#{sanitized_nickname}-lv" do
+lvm_logical_volume "lvol0" do
   group "vg-ebs-rightscale"
   size '100%VG'
   filesystem node['rs-storage']['device']['filesystem']
