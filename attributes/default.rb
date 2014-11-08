@@ -69,6 +69,12 @@ default['rs-storage']['backup']['lineage'] = nil
 # Restore lineage
 default['rs-storage']['restore']['lineage'] = nil
 
+# Restore LVM Group Name
+default['rs-storage']['restore']['group'] = nil
+
+# Restore LVM Volume Name
+default['rs-storage']['restore']['volume'] = nil
+
 # The timestamp to restore backup from a backup taken on or before the timestamp in the same lineage
 default['rs-storage']['restore']['timestamp'] = nil
 

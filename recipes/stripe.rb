@@ -75,11 +75,24 @@ end
 # Remove any characters other than alphanumeric and dashes and replace with dashes
 sanitized_nickname = device_nickname.downcase.gsub(/[^-a-z0-9]/, '-')
 
+group_name = "#{sanitized_nickname}-vg";
+volume_name= "#{sanitized_nickname}-lv";
+
+if !node['rs-storage']['restore']['group'].to_s.empty?
+	group_name = node['rs-storage']['restore']['group'].to_s
+end
+
+if !node['rs-storage']['restore']['volume'].to_s.empty?
+	volume_name = node['rs-storage']['restore']['volume'].to_s
+end
+
+Chef::Log.info "LVM group: #{group_name} volume: #{volume_name}"
+
 # Setup LVM on the volumes. The following resources will:
 #   - initialize the physical volumes for use by LVM
 #   - create volume group and logical volume
 #   - format and mount the logical volume
-lvm_volume_group "vg-ebs-rightscale" do
+lvm_volume_group group_name do
   physical_volumes(lazy do
     if node['rs-storage']['restore']['lineage'].to_s.empty?
       device_nicknames.map { |device_nickname| node['rightscale_volume'][device_nickname]['device'] }
@@ -89,8 +102,8 @@ lvm_volume_group "vg-ebs-rightscale" do
   end)
 end
 
-lvm_logical_volume "lvol0" do
-  group "vg-ebs-rightscale"
+lvm_logical_volume volume_name do
+  group group_name
   size '100%VG'
   filesystem node['rs-storage']['device']['filesystem']
   mount_point node['rs-storage']['device']['mount_point']

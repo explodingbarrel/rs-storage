@@ -96,6 +96,18 @@ attribute 'rs-storage/restore/lineage',
   :recipes => ['rs-storage::volume', 'rs-storage::stripe'],
   :required => 'recommended'
 
+attribute 'rs-storage/restore/group',
+  :display_name => 'Restore LVM Group Name',
+  :description => 'The LVM group name to restore, use vg-ebs-rightscale to restore from 11H1 snapshots',
+  :recipes => ['rs-storage::volume', 'rs-storage::stripe'],
+  :required => 'optional'
+
+attribute 'rs-storage/restore/volume',
+  :display_name => 'Restore LVM Volume Name',
+  :description => 'The LVM volume name to restore, use lvol0 to restore from 11H1 snapshots',
+  :recipes => ['rs-storage::volume', 'rs-storage::stripe'],
+  :required => 'optional'
+
 attribute 'rs-storage/restore/timestamp',
   :display_name => 'Restore Timestamp',
   :description => 'The timestamp (in seconds since UNIX epoch) to select a backup to restore from.' +
