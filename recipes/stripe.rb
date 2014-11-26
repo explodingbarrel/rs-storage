@@ -25,7 +25,7 @@ device_count = node['rs-storage']['device']['count'].to_i
 device_nickname = node['rs-storage']['device']['nickname']
 size = node['rs-storage']['device']['volume_size'].to_i
 
-raise 'rs-storage/device/count should be at least 2 for setting up stripe' if device_count < 2
+raise 'rs-storage/device/count should be at least 1 for setting up stripe' if device_count < 1
 
 detach_timeout = node['rs-storage']['device']['detach_timeout'].to_i * device_count
 
