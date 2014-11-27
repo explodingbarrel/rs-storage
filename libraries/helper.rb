@@ -34,7 +34,19 @@ module RsStorage
       mount.stdout.each_line do |line|
         if line =~ /^(.+)\s+on\s+#{mount_point}\s+/
           device = $1
-          return !!(device =~ /^\/dev\/mapper/) && shell_out("lvdisplay '#{device}'").status == 0
+          puts "checking device #{device}"
+          if !(device =~ ^\/dev\/mapper/ ) 
+            puts "#{device} doesnt start with /dev/mapper"
+            false
+          end
+
+          lvdisplay=shell_out("lvdisplay '#{device}'")
+          if lvdisplay.status != 0
+            puts "lvdisplay #{device} returned #{lvdisplay.status}"
+            false
+          end
+
+          true
         end
       end
       false
