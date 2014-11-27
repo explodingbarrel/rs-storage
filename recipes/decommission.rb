@@ -35,7 +35,7 @@ else
 
   # If LVM is used, we will have one or more devices with the device nickname appended with the device number. Destroy
   # the LVM conditionally and then detach and delete all the volumes.
-  if is_lvm_used?(node['rs-storage']['device']['mount_point'])
+  if true || is_lvm_used?(node['rs-storage']['device']['mount_point'])
     # Remove any characters other than alphanumeric and dashes and replace with dashes
     sanitized_nickname = device_nickname.downcase.gsub(/[^-a-z0-9]/, '-')
 
