@@ -34,19 +34,20 @@ module RsStorage
       mount.stdout.each_line do |line|
         if line =~ /^(.+)\s+on\s+#{mount_point}\s+/
           device = $1
-          puts "checking device #{device}"
+          Chef::Log.info "checking device #{device}"
 
           if !(device =~ /^\/dev\/mapper/ ) 
-            puts "#{device} doesnt start with /dev/mapper"
+            Chef::Log.info "#{device} doesnt start with /dev/mapper"
             false
           end
 
           lvdisplay=shell_out("lvdisplay '#{device}'")
           if lvdisplay.status != 0
-            puts "lvdisplay #{device} returned #{lvdisplay.status}"
+            Chef::Log.info "lvdisplay #{device} returned #{lvdisplay.status}"
             false
           end
 
+          Chef::Log.info "#{device} is a LVM device"
           true
         end
       end
