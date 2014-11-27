@@ -29,7 +29,7 @@ module RsStorage
     #
     # @return [Boolean] whether LVM is used in the device at the mount point
     #
-    def self.is_lvm_used?(mount_point)
+    def is_lvm_used?(mount_point)
       Chef::Log.info "checking lvm #{mount_point}"
       mount = shell_out!('mount')
       Chef::Log.info "mount returned #{mount.stdout}"
@@ -57,18 +57,6 @@ module RsStorage
       end
       Chef::Log.info "lvm check failed #{mount_point}"
       false
-    end
-
-    # Given a mount point this method will inspect if an LVM is used for the device mounted at the mount point.
-    #
-    # @param mount_point [String] the mount point of the device
-    #
-    # @return [Boolean] whether LVM is used in the device at the mount point
-    #
-    # @see .is_lvm_used?
-    #
-    def is_lvm_used?(mount_point)
-      RsStorage::Helper.is_lvm_used?(mount_point)
     end
 
     # Removes the LVM conditionally. It only accepts the name of the volume group and performs the following:
