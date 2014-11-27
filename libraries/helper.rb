@@ -21,7 +21,7 @@ require 'chef/mixin/shell_out'
 
 module RsStorage
   module Helper
-    extend Chef::Mixin::ShellOut
+    include Chef::Mixin::ShellOut
 
     # Given a mount point this method will inspect if an LVM is used for the device mounted at the mount point.
     #
@@ -68,7 +68,7 @@ module RsStorage
     #
     # @param volume_group_name [String] the name of the volume group
     #
-    def self.remove_lvm(volume_group_name)
+    def remove_lvm(volume_group_name)
       require 'lvm'
       lvm = LVM::LVM.new
       volume_group = lvm.volume_groups[volume_group_name]
@@ -104,43 +104,15 @@ module RsStorage
       end
     end
 
-    # Removes the LVM conditionally. It only accepts the name of the volume group and performs the following:
-    # 1. Removes the logical volumes in the volume group
-    # 2. Removes the volume group itself
-    # 3. Removes the physical volumes used to create the volume group
-    #
-    # This method is also idempotent -- it simply exits if the volume group is already removed.
-    #
-    # @param volume_group_name [String] the name of the volume group
-    #
-    # @see .remove_lvm
-    #
-    def remove_lvm(volume_group_name)
-      RsStorage::Helper.remove_lvm(volume_group_name)
-    end
-
     # Replaces dashes (-) with double dashes (--) to mimic the behavior of the LVM cookbook's naming convention of
     # naming logical volume names.
     #
     # @param name [String] the name to be converted
     #
     # @return [String] the converted name
-    #
-    def self.to_dm_name(name)
-      name.gsub(/-/, '--')
-    end
-
-    # Replaces dashes (-) with double dashes (--) to mimic the behavior of the LVM cookbook's naming convention of
-    # naming logical volume names.
-    #
-    # @param name [String] the name to be converted
-    #
-    # @return [String] the converted name
-    #
-    # @see .to_dm_name
     #
     def to_dm_name(name)
-      RsStorage::Helper.to_dm_name(name)
+      name.gsub(/-/, '--')
     end
 
     # Obtains the run state of the server. It uses the `rs_state` utility to get the current system run state.
@@ -155,29 +127,12 @@ module RsStorage
     #
     # @return [String] the current system run state
     #
-    def self.get_rs_run_state
+    def get_rs_run_state
       state = shell_out!('rs_state --type=run').stdout.chomp
       Chef::Log.info "The RightScale run state is: #{state.inspect}"
       state
     end
 
-    # Obtains the run state of the server. It uses the `rs_state` utility to get the current system run state.
-    # Possible values for this command:
-    # - booting
-    # - booting:reboot
-    # - operational
-    # - stranded
-    # - shutting-down:reboot
-    # - shutting-down:terminate
-    # - shutting-down:stop
-    #
-    # @return [String] the current system run state
-    #
-    # @see .get_rs_run_state
-    #
-    def get_rs_run_state
-      RsStorage::Helper.get_rs_run_state
-    end
   end
 end
 
