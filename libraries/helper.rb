@@ -35,7 +35,7 @@ module RsStorage
         if line =~ /^(.+)\s+on\s+#{mount_point}\s+/
           device = $1
           puts "checking device #{device}"
-          
+
           if !(device =~ /^\/dev\/mapper/ ) 
             puts "#{device} doesnt start with /dev/mapper"
             false
@@ -46,8 +46,6 @@ module RsStorage
             puts "lvdisplay #{device} returned #{lvdisplay.status}"
             false
           end
-
-          raise "device is lvm"
 
           true
         end
