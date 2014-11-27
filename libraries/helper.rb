@@ -30,7 +30,9 @@ module RsStorage
     # @return [Boolean] whether LVM is used in the device at the mount point
     #
     def self.is_lvm_used?(mount_point)
+      Chef::Log.info "checking lvm #{mount_point}"
       mount = shell_out!('mount')
+      Chef::Log.info "mount returned #{mount.stdout}"
       mount.stdout.each_line do |line|
         if line =~ /^(.+)\s+on\s+#{mount_point}\s+/
           device = $1
@@ -49,8 +51,11 @@ module RsStorage
 
           Chef::Log.info "#{device} is a LVM device"
           true
+        else
+            Chef::Log.info "line is no good #{line}"
         end
       end
+      Chef::Log.info "lvm check failed #{mount_point}"
       false
     end
 
