@@ -106,7 +106,7 @@ lvm_logical_volume volume_name do
   group group_name
   size '100%VG'
   filesystem node['rs-storage']['device']['filesystem']
-  mount_point node['rs-storage']['device']['mount_point']
+  mount_point location: node['rs-storage']['device']['mount_point'], options: 'noatime,nodiratime'
   stripes device_count
   stripe_size node['rs-storage']['device']['stripe_size']
 end
