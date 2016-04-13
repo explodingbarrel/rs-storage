@@ -8,7 +8,7 @@ version          '1.0.5'
 
 depends 'chef_handler', '~> 1.1.6'
 depends 'filesystem', '~> 0.9.0'
-depends 'lvm', '~> 1.1.0'
+depends 'lvm', '~> 1.6.1'
 depends 'marker', '~> 1.0.1'
 depends 'rightscale_backup', '~> 1.1.5'
 depends 'rightscale_volume', '~> 1.2.4'
