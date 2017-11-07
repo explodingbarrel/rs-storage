@@ -17,8 +17,8 @@
 # limitations under the License.
 #
 
-marker "recipe_start_rightscale" do
-  template "rightscale_audit_entry.erb"
+marker 'recipe_start_rightscale' do
+  template 'rightscale_audit_entry.erb'
 end
 
 schedule_enable = node['rs-storage']['schedule']['enable'] == true || node['rs-storage']['schedule']['enable'] == 'true'
@@ -37,6 +37,6 @@ end
 cron "backup_schedule_#{lineage}" do
   minute schedule_minute
   hour schedule_hour
-  command "rs_run_recipe --policy 'rs-storage::backup' --name 'rs-storage::backup'"
+  command "sudo rsc rl10 run_right_script /rll/run/right_script 'right_script=Storage Toolbox Backup - chef'"
   action schedule_enable ? :create : :delete
 end

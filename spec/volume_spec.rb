@@ -2,9 +2,10 @@ require_relative 'spec_helper'
 
 describe 'rs-storage::volume' do
   let(:chef_runner) do
-    ChefSpec::Runner.new do |node|
+    ChefSpec::SoloRunner.new do |node|
       node.set['rightscale_volume']['data_storage']['device'] = '/dev/sda'
       node.set['rightscale_backup']['data_storage']['devices'] = ['/dev/sda']
+      node.set['rs-storage']['device']['mount_point'] = '/mnt/storage'
     end
   end
   let(:nickname) { chef_run.node['rs-storage']['device']['nickname'] }
@@ -12,23 +13,13 @@ describe 'rs-storage::volume' do
     chef_runner.converge(described_recipe).node['rs-storage']['device']['detach_timeout'].to_i
   end
 
-  before do
-    stub_command('[ `rs_config --get decommission_timeout` -eq 300 ]').and_return(false)
-  end
-
   context 'rs-storage/restore/lineage is not set' do
     let(:chef_run) { chef_runner.converge(described_recipe) }
-
-    it 'sets the decommission timeout' do
-      expect(chef_run).to run_execute("set decommission timeout to #{detach_timeout}").with(
-        command: "rs_config --set decommission_timeout #{detach_timeout}",
-      )
-    end
 
     it 'creates a new volume and attaches it' do
       expect(chef_run).to create_rightscale_volume(nickname).with(
         size: 10,
-        options: {},
+        options: {}
       )
       expect(chef_run).to attach_rightscale_volume(nickname)
     end
@@ -37,7 +28,7 @@ describe 'rs-storage::volume' do
       expect(chef_run).to create_filesystem(nickname).with(
         fstype: 'ext4',
         mkfs_options: '-F',
-        mount: '/mnt/storage',
+        mount: '/mnt/storage'
       )
       expect(chef_run).to enable_filesystem(nickname)
       expect(chef_run).to mount_filesystem(nickname)
@@ -52,7 +43,7 @@ describe 'rs-storage::volume' do
       it 'creates a new volume with iops set to 100 and attaches it' do
         expect(chef_run).to create_rightscale_volume(nickname).with(
           size: 10,
-          options: {iops: 100},
+          options: { iops: 100 }
         )
         expect(chef_run).to attach_rightscale_volume(nickname)
       end
@@ -74,13 +65,17 @@ describe 'rs-storage::volume' do
         lineage: 'testing',
         timestamp: nil,
         size: 10,
-        options: {},
+        options: {}
       )
+    end
+
+    it 'creates the directory' do
+      expect(chef_run).to create_directory(chef_run.node['rs-storage']['device']['mount_point'])
     end
 
     it 'mounts and enables the restored volume' do
       expect(chef_run).to mount_mount(device).with(
-        fstype: 'ext4',
+        fstype: 'ext4'
       )
       expect(chef_run).to enable_mount(device)
     end
@@ -96,7 +91,7 @@ describe 'rs-storage::volume' do
           lineage: 'testing',
           timestamp: nil,
           size: 10,
-          options: {iops: 100},
+          options: { iops: 100 }
         )
       end
     end
@@ -113,7 +108,7 @@ describe 'rs-storage::volume' do
           lineage: 'testing',
           timestamp: timestamp,
           size: 10,
-          options: {},
+          options: {}
         )
       end
     end

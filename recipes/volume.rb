@@ -16,20 +16,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+def log(msg)
+  Chef::Log.info msg
+end
 
-marker "recipe_start_rightscale" do
-  template "rightscale_audit_entry.erb"
+marker 'recipe_start_rightscale' do
+  template 'rightscale_audit_entry.erb'
 end
 
 detach_timeout = node['rs-storage']['device']['detach_timeout'].to_i
 device_nickname = node['rs-storage']['device']['nickname']
 size = node['rs-storage']['device']['volume_size'].to_i
-
-execute "set decommission timeout to #{detach_timeout}" do
-  command "rs_config --set decommission_timeout #{detach_timeout}"
-  not_if "[ `rs_config --get decommission_timeout` -eq #{detach_timeout} ]"
-end
-
 
 # Cloud-specific volume options
 volume_options = {}
@@ -46,7 +43,9 @@ if node['rs-storage']['restore']['lineage'].to_s.empty?
     action [:create, :attach]
   end
 
+  # Filesystem label must be <= 12 chars
   filesystem device_nickname do
+    label device_nickname[0, 12]
     fstype node['rs-storage']['device']['filesystem']
     device lazy { node['rightscale_volume'][device_nickname]['device'] }
     mkfs_options node['rs-storage']['device']['mkfs_options']

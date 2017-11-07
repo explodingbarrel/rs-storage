@@ -17,8 +17,8 @@
 # limitations under the License.
 #
 
-marker "recipe_start_rightscale" do
-  template "rightscale_audit_entry.erb"
+marker 'recipe_start_rightscale' do
+  template 'rightscale_audit_entry.erb'
 end
 
 device_count = node['rs-storage']['device']['count'].to_i
@@ -28,11 +28,6 @@ size = node['rs-storage']['device']['volume_size'].to_i
 raise 'rs-storage/device/count should be at least 1 for setting up stripe' if device_count < 1
 
 detach_timeout = node['rs-storage']['device']['detach_timeout'].to_i * device_count
-
-execute "set decommission timeout to #{detach_timeout}" do
-  command "rs_config --set decommission_timeout #{detach_timeout}"
-  not_if "[ `rs_config --get decommission_timeout` -eq #{detach_timeout} ]"
-end
 
 each_device_size = (size.to_f / device_count.to_f).ceil
 

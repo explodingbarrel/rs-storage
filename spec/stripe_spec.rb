@@ -2,7 +2,7 @@ require_relative 'spec_helper'
 
 describe 'rs-storage::stripe' do
   let(:chef_runner) do
-    ChefSpec::Runner.new do |node|
+    ChefSpec::SoloRunner.new do |node|
       node.set['rightscale_volume']['data_storage_1']['device'] = '/dev/sda'
       node.set['rightscale_volume']['data_storage_2']['device'] = '/dev/sdb'
       node.set['rightscale_backup']['data_storage']['devices'] = ['/dev/sda', '/dev/sdb']
@@ -11,33 +11,23 @@ describe 'rs-storage::stripe' do
   let(:nickname) { chef_run.node['rs-storage']['device']['nickname'] }
   let(:nickname_1) { "#{nickname}_1" }
   let(:nickname_2) { "#{nickname}_2" }
-  let(:volume_group) { "#{nickname.gsub('_', '-')}-vg" }
-  let(:logical_volume) { "#{nickname.gsub('_', '-')}-lv" }
+  let(:volume_group) { "#{nickname.tr('_', '-')}-vg" }
+  let(:logical_volume) { "#{nickname.tr('_', '-')}-lv" }
   let(:detach_timeout) do
     chef_runner.converge(described_recipe).node['rs-storage']['device']['detach_timeout'].to_i
-  end
-
-  before do
-    stub_command('[ `rs_config --get decommission_timeout` -eq 600 ]').and_return(false)
   end
 
   context 'rs-storage/restore/lineage is not set' do
     let(:chef_run) { chef_runner.converge(described_recipe) }
 
-    it 'sets the decommission timeout' do
-      expect(chef_run).to run_execute("set decommission timeout to #{detach_timeout * 2}").with(
-        command: "rs_config --set decommission_timeout #{detach_timeout * 2}",
-      )
-    end
-
     it 'creates two new volumes and attaches them' do
       expect(chef_run).to create_rightscale_volume(nickname_1).with(
         size: 5,
-        options: {},
+        options: {}
       )
       expect(chef_run).to create_rightscale_volume(nickname_2).with(
         size: 5,
-        options: {},
+        options: {}
       )
       expect(chef_run).to attach_rightscale_volume(nickname_1)
       expect(chef_run).to attach_rightscale_volume(nickname_2)
@@ -51,7 +41,7 @@ describe 'rs-storage::stripe' do
         filesystem: 'ext4',
         mount_point: '/mnt/storage',
         stripes: 2,
-        stripe_size: 512,
+        stripe_size: 512
       )
     end
 
@@ -64,11 +54,11 @@ describe 'rs-storage::stripe' do
       it 'creates two new volumes with iops set to 100 and attaches them' do
         expect(chef_run).to create_rightscale_volume(nickname_1).with(
           size: 5,
-          options: {iops: 100},
+          options: { iops: 100 }
         )
         expect(chef_run).to create_rightscale_volume(nickname_2).with(
           size: 5,
-          options: {iops: 100},
+          options: { iops: 100 }
         )
         expect(chef_run).to attach_rightscale_volume(nickname_1)
         expect(chef_run).to attach_rightscale_volume(nickname_2)
@@ -90,7 +80,7 @@ describe 'rs-storage::stripe' do
         lineage: 'testing',
         timestamp: nil,
         size: 5,
-        options: {},
+        options: {}
       )
     end
 
@@ -102,7 +92,7 @@ describe 'rs-storage::stripe' do
         filesystem: 'ext4',
         mount_point: '/mnt/storage',
         stripes: 2,
-        stripe_size: 512,
+        stripe_size: 512
       )
     end
 
@@ -117,7 +107,7 @@ describe 'rs-storage::stripe' do
           lineage: 'testing',
           timestamp: nil,
           size: 5,
-          options: {iops: 100},
+          options: { iops: 100 }
         )
       end
     end
@@ -134,7 +124,7 @@ describe 'rs-storage::stripe' do
           lineage: 'testing',
           timestamp: timestamp,
           size: 5,
-          options: {},
+          options: {}
         )
       end
     end

@@ -17,17 +17,17 @@
 # limitations under the License.
 #
 
-marker "recipe_start_rightscale" do
-  template "rightscale_audit_entry.erb"
+marker 'recipe_start_rightscale' do
+  template 'rightscale_audit_entry.erb'
 end
 
 # Check for the safety attribute first
 if node['rs-storage']['device']['destroy_on_decommission'] != true &&
-  node['rs-storage']['device']['destroy_on_decommission'] != 'true'
-  log "rs-storage/device/destroy_on_decommission is set to '#{node['rs-storage']['device']['destroy_on_decommission']}'" +
-    " skipping..."
+   node['rs-storage']['device']['destroy_on_decommission'] != 'true'
+  log "rs-storage/device/destroy_on_decommission is set to '#{node['rs-storage']['device']['destroy_on_decommission']}'" \
+      ' skipping...'
 # Check 'rs_run_state' and skip if the instance is rebooting or entering the stop state
-elsif ['shutting-down:reboot', 'shutting-down:stop', 'shutting-down:unknown'].include?(get_rs_run_state)
+elsif %w(reboot stop).include?(node['rightscale']['decom_reason'])
   log 'Skipping deletion of volumes as the instance is either rebooting or entering the stop state...'
 # Detach and delete the volumes if the above safety conditions are satisfied
 else
@@ -38,6 +38,7 @@ else
   if true || is_lvm_used?(node['rs-storage']['device']['mount_point'])
     # Remove any characters other than alphanumeric and dashes and replace with dashes
     sanitized_nickname = device_nickname.downcase.gsub(/[^-a-z0-9]/, '-')
+<<<<<<< HEAD
 
     group_name = "#{sanitized_nickname}-vg";
     volume_name= "#{sanitized_nickname}-lv";
@@ -50,6 +51,8 @@ else
     	volume_name = node['rs-storage']['restore']['volume'].to_s
     end
 
+=======
+>>>>>>> d669f08f87743e072eba619a3fba6a9c9dd6bc89
     # Construct the logical volume from the name of the volume group and the name of the logical volume similar to how the
     # lvm cookbook constructs the name during the creation of the logical volume
     logical_volume_device = "/dev/mapper/#{to_dm_name(group_name)}-#{to_dm_name(volume_name)}"
@@ -62,7 +65,7 @@ else
       action [:umount, :disable]
     end
 
-    log "LVM is used on the device(s). Cleaning up the LVM."
+    log 'LVM is used on the device(s). Cleaning up the LVM.'
     # Clean up the LVM conditionally
     ruby_block 'clean up LVM' do
       block do
