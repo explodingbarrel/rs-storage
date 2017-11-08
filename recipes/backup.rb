@@ -24,9 +24,12 @@ marker 'recipe_start_rightscale' do
   template 'rightscale_audit_entry.erb'
 end
 
-include_recipe 'chef_handler::default'
-
 # Create the backup error handler
+directory node['chef_handler']['handler_path'].to_s do
+  action :create
+  recursive true
+end
+
 cookbook_file "#{node['chef_handler']['handler_path']}/rs-storage_backup.rb" do
   source 'backup_error_handler.rb'
   action :create
